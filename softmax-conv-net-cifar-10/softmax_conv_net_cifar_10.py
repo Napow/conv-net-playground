@@ -7,6 +7,7 @@ from keras.layers.convolutional import Conv2D
 from keras.layers.normalization import BatchNormalization
 from keras.optimizers import Adam
 from keras.layers.pooling import MaxPooling2D
+from keras.preprocessing import image
 from keras.utils import to_categorical
 
 if __name__ == '__main__':
@@ -66,3 +67,14 @@ if __name__ == '__main__':
         elif action.startswith('savemodel'):
 
             model.save('softmax_conv_net_cifar_10_model_' + action.split(' ')[1] + '.h5')
+
+        elif action.startswith('predict'):
+            Tk().withdraw() # we don't want a full GUI, so keep the root window from appearing
+            filename = askopenfilename() # show an "Open" dialog box and return the path to the selected file
+            print(filename)
+            img_path = action.split(' ')[1]
+            img = image.load_img(img_path, target_size=(32,32))
+            test_image = image.img_to_array(img)
+            test_image = np.expand_dims(test_image, axis=0)
+            pred = model.predict(test_image,batch_size=1)
+            print(pred)
