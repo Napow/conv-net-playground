@@ -22,10 +22,12 @@ if __name__ == '__main__':
         model.add(BatchNormalization())
         model.add(Conv2D(32, kernel_size=(3, 3), activation='relu', input_shape=(32, 32, 3))) # 30, 30, 32
         model.add(Conv2D(64, kernel_size=(3, 3), activation='relu')) # 28, 28, 64
+        model.add(Dropout(0.1))
         model.add(MaxPooling2D(pool_size=(2, 2))) # 14, 14, 64
 
         model.add(Conv2D(128, kernel_size=(3, 3), activation='relu')) # 12, 12, 128
         model.add(MaxPooling2D(pool_size=(2, 2))) # 6, 6, 128
+        model.add(Dropout(0.2))
         model.add(Conv2D(128, kernel_size=(3, 3), activation='relu')) # 4, 4, 128
         model.add(MaxPooling2D(pool_size=(2, 2))) # 2, 2, 128
 
