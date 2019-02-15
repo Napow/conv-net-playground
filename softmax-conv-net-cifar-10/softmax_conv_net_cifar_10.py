@@ -69,12 +69,13 @@ if __name__ == '__main__':
             model.save('softmax_conv_net_cifar_10_model_' + action.split(' ')[1] + '.h5')
 
         elif action.startswith('predict'):
-            Tk().withdraw() # we don't want a full GUI, so keep the root window from appearing
-            filename = askopenfilename() # show an "Open" dialog box and return the path to the selected file
-            print(filename)
+            category = ['airplane','car','bird','cat','deer','dog','frog','horse','ship','truck']
             img_path = action.split(' ')[1]
             img = image.load_img(img_path, target_size=(32,32))
             test_image = image.img_to_array(img)
             test_image = np.expand_dims(test_image, axis=0)
             pred = model.predict(test_image,batch_size=1)
-            print(pred)
+            for i in range(0, len(category)):
+                if pred[0][i]:
+                    print(category[i])
+                    break
