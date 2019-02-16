@@ -1,5 +1,6 @@
 import numpy as np
 import tkinter as tk
+import matplotlib.pyplot as plt
 from tkinter.filedialog import askopenfilename
 from keras.callbacks import EarlyStopping
 from keras.datasets import cifar10
@@ -12,25 +13,23 @@ from keras.layers.pooling import MaxPooling2D
 from keras.preprocessing import image
 from keras.utils import to_categorical
 
-# Network classification category titles
-category = ['airplane','car','bird','cat','deer',
-                'dog','frog','horse','ship','truck']
-model = None
-
 # Opens file browser to choose image to be classified,
 # returns predicted category title
 def predict():
+    # Network classification category titles
+    category = ['airplane','car','bird','cat','deer',
+                'dog','frog','horse','ship','truck']
     img_path = askopenfilename() # Opens file browser
     # Image is loaded as 32x32, converted to 32x32x3 array,
     # then expanded to fit models 4 dimension requirement,
-    # pred = one-hot encoded prediction
+    # one-hot prediction converted to category title
     img = image.load_img(img_path, target_size=(32,32)) 
     test_image = image.img_to_array(img) 
     test_image = np.expand_dims(test_image, axis=0) 
     pred = model.predict(test_image, batch_size=1)
     cat_title = category[np.argmax(pred)]
     print('Image predicted to be ' + cat_title)
-# Opens file browser to choose current model
+
 def loadmodel():
     model_path = askopenfilename() # Opens file browser
     try:
@@ -67,19 +66,32 @@ def newmodel():
     model.add(Dense(1024, activation='relu'))
     model.add(Dense(10, activation='softmax'))
 
-# Loads training data, compiles the model, runs 5x epochs of 
-# 64 size minibatches of funn 50k training set (CIFAR-10)
-def trainmodel():
+# Loads training data, compiles the model, runs training
+# TODO: Separate steps, browse for training data, add
+# editor in GUI for other hyperparameters
+def trainmodel(batch_size=64, epochs=1):
+    # Load training data
     (X_train, Y_train), (X_test, Y_test) = cifar10.load_data()
+    # Configures model for training
     model.compile(loss='categorical_crossentropy',
                     optimizer=Adam(lr=0.0001, decay=1e-6),
                     metrics=['accuracy'])
-    model.fit(X_train / 255.0, to_categorical(Y_train),
-                batch_size=64,
+    # Performs training on entered dataset
+    fit_report = model.fit(X_train / 255.0, to_categorical(Y_train),
+                batch_size=batch_size,
                 shuffle=True,
-                epochs=5,
+                epochs=epochs,
                 validation_data=(X_test / 255.0, to_categorical(Y_test)),
                 callbacks=[EarlyStopping(min_delta=0.001, patience=3)])
+    # Plot training accuracy over time
+    plt.plot(fit_report.history['acc'])
+    plt.plot(fit_report.history['val_acc'])
+    plt.title('Model accuracy')
+    plt.ylabel('Accuracy')
+    plt.xlabel('Epoch')
+    plt.legend(['Train'], loc='upper left')
+    plt.show()
+    # Print a summary of model layout & training scores
     model.summary()
     scores = model.evaluate(X_test / 255.0, to_categorical(Y_test))
     print('Loss: %.3f' % scores[0])
