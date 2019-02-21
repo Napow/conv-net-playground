@@ -46,7 +46,8 @@ def savemodel():
     except:
         print('Error saving model')
 
-# Creates a new model, TODO: separate and modularise
+# Creates a new model BATCH NORM->CONV->CONV->DROPOUT->MAX POOLING->
+# CONV->MAX POOLING->DROPOUT->CONV->MAX POOLING->FULLY CON->SOFTMAX 10
 def newmodel():
 
     model = Sequential()
