@@ -30,6 +30,7 @@ def predict():
     cat_title = category[np.argmax(pred)]
     print('Image predicted to be ' + cat_title)
 
+# Opens file browser, returns selected model
 def loadmodel():
     model_path = askopenfilename() # Opens file browser
     try:
@@ -37,6 +38,7 @@ def loadmodel():
     except:
         print('Error loading model')
 
+# Opens file browser, saves current model as specified
 def savemodel():
     save_path = askopenfilename() # Opens file browser
     try:
@@ -51,7 +53,8 @@ def newmodel():
 
     model.add(BatchNormalization())
 
-    model.add(Conv2D(32, kernel_size=(3, 3), activation='relu', input_shape=(32, 32, 3))) # 30, 30, 32
+    model.add(Conv2D(32, kernel_size=(3, 3), activation='relu', 
+                     input_shape=(32, 32, 3))) # 30, 30, 32
     model.add(Conv2D(64, kernel_size=(3, 3), activation='relu')) # 28, 28, 64
     model.add(Dropout(0.1))
     model.add(MaxPooling2D(pool_size=(2, 2))) # 14, 14, 64
@@ -97,16 +100,23 @@ def trainmodel(batch_size=64, epochs=1):
     print('Loss: %.3f' % scores[0])
     print('Accuracy: %.3f' % scores[1])
 
+# Simple GUI for ease of navigation, frames to be separated
+# into input and display sections
 main_window = tk.Tk()
 main_window.title('softmax-conf-net-cifar-10.py')
 
 top_frame = tk.Frame(main_window).pack()
 bottom_frame = tk.Frame(main_window).pack(side = "bottom")
 
-load_btn = tk.Button(bottom_frame, text='Load CNN', command=loadmodel).pack(side='left')
-train_btn = tk.Button(bottom_frame, text='Train', command=trainmodel).pack(side='left')
-predict_btn = tk.Button(bottom_frame, text='Predict', command=predict).pack(side='left')
-save_btn = tk.Button(bottom_frame, text='Save CNN', command=savemodel).pack(side='right')
+load_btn = tk.Button(bottom_frame, text='Load CNN', 
+                     command=loadmodel).pack(side='left')
+train_btn = tk.Button(bottom_frame, text='Train', 
+                      command=trainmodel).pack(side='left')
+predict_btn = tk.Button(bottom_frame, text='Predict', 
+                        command=predict).pack(side='left')
+save_btn = tk.Button(bottom_frame, text='Save CNN', 
+                     command=savemodel).pack(side='right')
 
+# Request user for model to load on start
 model = loadmodel()
 main_window.mainloop()
