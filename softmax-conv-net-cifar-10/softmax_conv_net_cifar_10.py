@@ -69,6 +69,26 @@ def newmodel():
     model.add(Flatten())
     model.add(Dense(1024, activation='relu'))
     model.add(Dense(10, activation='softmax'))
+    
+def newmodel_vgg():
+
+    model = Sequential()
+
+    model.add(Conv2D(64, kernel_size=(3, 3), activation='relu', 
+                     input_shape=(32, 32, 3))) # 30, 30, 32
+    model.add(Conv2D(64, kernel_size=(3, 3), activation='relu')) # 28, 28, 64
+    model.add(Dropout(0.1))
+    model.add(MaxPooling2D(pool_size=(2, 2))) # 14, 14, 64
+
+    model.add(Conv2D(128, kernel_size=(3, 3), activation='relu')) # 12, 12, 128
+    model.add(MaxPooling2D(pool_size=(2, 2))) # 6, 6, 128
+    model.add(Dropout(0.2))
+    model.add(Conv2D(128, kernel_size=(3, 3), activation='relu')) # 4, 4, 128
+    model.add(MaxPooling2D(pool_size=(2, 2))) # 2, 2, 128
+
+    model.add(Flatten())
+    model.add(Dense(1024, activation='relu'))
+    model.add(Dense(10, activation='softmax'))
 
 # Loads training data, compiles the model, runs training
 # TODO: Separate steps, browse for training data, add
@@ -95,12 +115,13 @@ def trainmodel(batch_size=64, epochs=1):
     plt.xlabel('Epoch')
     plt.legend(['Train'], loc='upper left')
     plt.show()
-    # Print a summary of model layout & training scores
-    model.summary()
+    
+def testmodel():
+    (X_train, Y_train), (X_test, Y_test) = cifar10.load_data()
     scores = model.evaluate(X_test / 255.0, to_categorical(Y_test))
     print('Loss: %.3f' % scores[0])
     print('Accuracy: %.3f' % scores[1])
-
+    
 # Simple GUI for ease of navigation, frames to be separated
 # into input and display sections
 main_window = tk.Tk()
@@ -113,6 +134,8 @@ load_btn = tk.Button(bottom_frame, text='Load CNN',
                      command=loadmodel).pack(side='left')
 train_btn = tk.Button(bottom_frame, text='Train', 
                       command=trainmodel).pack(side='left')
+test_btn = tk.Button(bottom_frame, text='Test', 
+                        command=testmodel).pack(side='left')
 predict_btn = tk.Button(bottom_frame, text='Predict', 
                         command=predict).pack(side='left')
 save_btn = tk.Button(bottom_frame, text='Save CNN', 
