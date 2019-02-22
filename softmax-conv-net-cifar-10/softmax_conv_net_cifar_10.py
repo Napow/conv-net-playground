@@ -70,29 +70,84 @@ def newmodel():
     model.add(Dense(1024, activation='relu'))
     model.add(Dense(10, activation='softmax'))
     
+# Adds CONV2D layer to passed model, num_filters = number of filters in layer,
+# 3x3 kernel size, 'same' padding, where multiple identical layers needed in
+# succession num_layers can be passed to avoid needing to call several times
+# in succession. Layers activated with ReLU.
+# max_pooling can be passed as true to perform 2x2 max pooling following all
+# layers requested being added to model.
+def add_vgg_layer(model, num_filters, num_layers=1, max_pooling=False):
+    for i in range(num_layers):
+        model.add(Conv2D(num_filters, kernel_size=(3, 3), padding='same',
+                         activation='relu'))
+    if max_pooling:
+        model.add(MaxPooling2D(pool_size=(2, 2)))
+    return model
+
+# Creates standard VGG-16 model, 224x224x3 input, 1000 node softmax output
+# As derived from https://arxiv.org/abs/1409.1556
 def newmodel_vgg():
 
     model = Sequential()
 
-    model.add(Conv2D(64, kernel_size=(3, 3), activation='relu', 
-                     input_shape=(32, 32, 3))) # 30, 30, 32
-    model.add(Conv2D(64, kernel_size=(3, 3), activation='relu')) # 28, 28, 64
-    model.add(Dropout(0.1))
-    model.add(MaxPooling2D(pool_size=(2, 2))) # 14, 14, 64
+    model.add(Conv2D(64, kernel_size=(3, 3), padding='same', activation='relu',
+                     input_shape=(224, 224, 3))) # 224, 224, 64
+    model.add(Conv2D(64, kernel_size=(3, 3), padding='same',
+                     activation='relu')) # 224, 224, 64
+    
+    model.add(MaxPooling2D(pool_size=(2, 2))) # 112, 112, 64
+    
+    #model = add_vgg_layer(model, 128, num_layers = 2, max_pooling = True)
 
-    model.add(Conv2D(128, kernel_size=(3, 3), activation='relu')) # 12, 12, 128
-    model.add(MaxPooling2D(pool_size=(2, 2))) # 6, 6, 128
-    model.add(Dropout(0.2))
-    model.add(Conv2D(128, kernel_size=(3, 3), activation='relu')) # 4, 4, 128
-    model.add(MaxPooling2D(pool_size=(2, 2))) # 2, 2, 128
+    model.add(Conv2D(128, kernel_size=(3, 3), padding='same',
+                     activation='relu')) # 112, 112, 128
+    model.add(Conv2D(128, kernel_size=(3, 3), padding='same',
+                     activation='relu')) # 112, 112, 128
+    
+    model.add(MaxPooling2D(pool_size=(2, 2))) # 56, 56, 128
+    
+    #model = add_vgg_layer(model, 256, num_layers = 3, max_pooling = True)
+    
+    model.add(Conv2D(256, kernel_size=(3, 3), padding='same',
+                     activation='relu')) # 56, 56, 256
+    model.add(Conv2D(256, kernel_size=(3, 3), padding='same',
+                     activation='relu')) # 56, 56, 256
+    model.add(Conv2D(256, kernel_size=(3, 3), padding='same',
+                     activation='relu')) # 56, 56, 256
+    
+    model.add(MaxPooling2D(pool_size=(2, 2))) # 28, 28, 256
+    
+    #model = add_vgg_layer(model, 512, num_layers = 3, max_pooling = True)
+    
+    model.add(Conv2D(512, kernel_size=(3, 3), padding='same',
+                     activation='relu')) # 28, 28, 512
+    model.add(Conv2D(512, kernel_size=(3, 3), padding='same',
+                     activation='relu')) # 28, 28, 512
+    model.add(Conv2D(512, kernel_size=(3, 3), padding='same',
+                     activation='relu')) # 28, 28, 512
+    
+    model.add(MaxPooling2D(pool_size=(2, 2))) # 14, 14, 512
+    
+    #model = add_vgg_layer(model, 512, num_layers = 3, max_pooling = True)
+    
+    model.add(Conv2D(512, kernel_size=(3, 3), padding='same',
+                     activation='relu')) # 14, 14, 512
+    model.add(Conv2D(512, kernel_size=(3, 3), padding='same',
+                     activation='relu')) # 14, 14, 512
+    model.add(Conv2D(512, kernel_size=(3, 3), padding='same',
+                     activation='relu')) # 14, 14, 512
+    
+    model.add(MaxPooling2D(pool_size=(2, 2))) # 7, 7, 512    
 
+    # Flatten 7x7x512 output to 1x1x4096, pass through 2x 4096 node fully
+    # connected layers then 1000 class softmax classifier
     model.add(Flatten())
-    model.add(Dense(1024, activation='relu'))
-    model.add(Dense(10, activation='softmax'))
+    model.add(Dense(4096, activation='relu'))    
+    model.add(Dense(4096, activation='relu'))
+    model.add(Dense(1000, activation='softmax'))
 
 # Loads training data, compiles the model, runs training
-# TODO: Separate steps, browse for training data, add
-# editor in GUI for other hyperparameters
+# TODO: Browse for training data, add editor in GUI for other hyperparameters
 def trainmodel(batch_size=64, epochs=1):
     # Load training data
     (X_train, Y_train), (X_test, Y_test) = cifar10.load_data()
