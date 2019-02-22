@@ -143,7 +143,7 @@ def newmodel_vgg():
     # connected layers then 1000 class softmax classifier
     model.add(Flatten())
     model.add(Dense(4096, activation='relu'))    
-    model.add(Dense(4096, activation='relu'))
+    model.add(Dense(4096, activation='relu'))fff
     model.add(Dense(1000, activation='softmax'))
 
 # Loads training data, compiles the model, runs training
