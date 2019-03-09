@@ -98,6 +98,8 @@ class ModelPlayground:
     def newmodel_vgg(self):
     
         model = Sequential()
+        
+        #model = add_vgg_layer(model, 64, num_layers = 2, max_pooling = True)
     
         model.add(Conv2D(64, kernel_size=(3, 3), padding='same', activation='relu',
                          input_shape=(224, 224, 3))) # 224, 224, 64
